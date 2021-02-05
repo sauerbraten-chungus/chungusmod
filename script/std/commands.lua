@@ -14,7 +14,7 @@ local playermsg = require"std.playermsg"
 local function checkstring(info, prefix)
   if info.skip or info.ci.state.aitype ~= server.AI_NONE then return end
   local full, lcmd = info.text:lower():match("^( *" .. prefix .. "([%l%_%d]+) *)")
-  if not full or lcmd == "" then return end
+  if not full or lcmd == "" or lcmd:sub(1, 2) == "__" then return end               -- neither eval nor skip commands prefixed with "__", wc-ng sends these
   info.skip = true
   local ev = "commands." .. lcmd
   if not spaghetti.hooks[ev] then return playermsg("Unrecognized command " .. lcmd, info.ci) end
