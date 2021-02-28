@@ -174,7 +174,7 @@ Not all fields of `ENetHost` and `ENetPeer` are exported. As a rule of thumb, th
 
 The default boostrap code adds *script/* to the `LUA_PATH`, to ease `require`.
 
-*utils* contain some functional programming utilities, `ip` and `ipset` object that are already documented in [kidban](https://github.com/pisto/kidban/tree/master/maintaining-docs# modules), and other generic helpers.
+*utils* contain some functional programming utilities, `ip` and `ipset` object that are already documented in [kidban](https://github.com/pisto/kidban/tree/master/maintaining-docs#modules), and other generic helpers.
 
 *std* contains the standard modules. I am too lazy to write a documentation for these before someone actually shows interest in using my code. Feel free to contact me if you want to write your own modules.
 
@@ -189,7 +189,7 @@ Install the common build tools, some libraries and LUA 5.2 (might have to be run
 apt install zip unzip rlwrap pkg-config git build-essential zlib1g-dev lua5.2 liblua5.2 liblua5.2-dev lua-posix
 ```     
 
-You should also get luarocks and install some needed packages (also requires sudo):
+You should also get luarocks and install some needed packages (may require root):
 ```
 wget https://luarocks.github.io/luarocks/releases/luarocks-3.3.1.tar.gz && tar xzf luarocks-3.3.1.tar.gz; rm -fv luarocks-3.3.1.tar.gz; mv luarocks-3.3.1 luarocks
 cd luarocks
@@ -258,8 +258,8 @@ You also need a discord bot that is invited to your server, and its API token, b
 
 ### Installing node modules
 ```
-curl -sL https://deb.nodesource.com/setup_13.x | sudo -E bash -
-sudo apt-get install -y nodejs npm
+curl -sL https://deb.nodesource.com/setup_13.x | bash -
+apt install -y nodejs npm
 ```
 Then
 - cd into /spaghettimod/discord/
@@ -314,5 +314,5 @@ cd discord
 node app
 ```
 Please make sure to start the discord bot before starting spaghettimod. 
-The discord bot is designed to handle multiple spaghettimod restarts.
+The discord bot is designed to handle multiple spaghettimod gameservers at the same time.
 
