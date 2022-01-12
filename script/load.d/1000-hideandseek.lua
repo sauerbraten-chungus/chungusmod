@@ -230,11 +230,11 @@ end, true)
 --simple banner
 spaghetti.addhook("maploaded", function(info)
   if info.ci.extra.bannershown then return end
-  local banner = "Welcome to \f4- \f6Hide & Seek \f4-\n"
+  local banner = "\f6Welcome to \f4- \f6Hide & Seek \f4-\n"
   if require"gamemods.hideandseek".game.has then
-    banner = banner .. "An active Hide & Seek game is running. \f0You will be added on the next map. \f6In the meantime, read the \f0#rules\f6!"
+    banner = banner .. "\f6An active Hide & Seek game is running. \f0You will be added on the next map. \f6In the meantime, read the \f0#rules\f6!"
   else
-    banner = banner .. "Type \f0#has \f6to launch a game of Hide & Seek!"
+    banner = banner .. "\f6Type \f0#has \f6to launch a game of Hide & Seek!"
   end
   info.ci.extra.bannershown = true
   local ciuuid = info.ci.extra.uuid

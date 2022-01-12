@@ -46,7 +46,7 @@ end
 local function blockteams(info)
   if info.skip then return end
   info.skip = true
-  playermsg("You cannot switch teams in Hide & Seek", info.ci)
+  playermsg("\f3You cannot switch teams in Hide & Seek", info.ci)
 end
 
 local function countteam(team)
@@ -56,8 +56,8 @@ local function countteam(team)
 end
 
 local function checkgame(starting)
-  if starting then return not (server.numclients(-1, true, true) < 2), "Hide & Seek mode needs at least \f0two players\f6! Please invite or \f0#add \f6more players to the server!" end
-  return not (countteam("hide") == 0 or countteam("seek") == 0), "Hide & Seek mode needs at least \f0two players\f6! Please invite or \f0#add \f6more players to the server!"
+  if starting then return not (server.numclients(-1, true, true) < 2), "\f6Hide & Seek mode needs at least \f0two players\f6! Please invite or \f0#add \f6more players to the server!" end
+  return not (countteam("hide") == 0 or countteam("seek") == 0), "\f6Hide & Seek mode needs at least \f0two players\f6! Please invite or \f0#add \f6more players to the server!"
 end
 
 local function playerout(ci)
@@ -71,7 +71,7 @@ local function caught(ci, loser)
   setteam.set(ci, "seek", -1)
   ci.extra.nextseeker, module.game.nextseeker = loser, module.game.nextseeker and module.game.nextseeker or loser and ci.clientnum or nil
   server.sendservmsg("\f4> \f0" .. ci.name .. " \f6has been killed!" .. (loser and " They will start seeking in the next round!" or ""))
-  playermsg("You have died and became a seeker! \f3Kill the hiders \f6before the time runs out!!", ci)
+  playermsg("\f6You have died and became a seeker! \f3Kill the hiders \f6before the time runs out!!", ci)
   if countteam("hide") == 0 then return server.startintermission() end
   local count, plural = countteam("hide")
   server.sendservmsg("\f4> \f6" .. count .. " hider" .. (plural and "s" or "") .. " to go!")
@@ -114,9 +114,9 @@ local function prepseeker(ci, config)
   engine.sendpacket(ci.clientnum, 1, n_client(putf({ 20, r = true}, server.N_EDITVAR, engine.ID_VAR, "fogcolour", 0), ci):finalize(), -1)
   playermsg("\n", ci)
   playermsg("\n", ci)
-  playermsg("#####################################################################", ci)
-  playermsg("\f3YOU are seeker! \f6You are now frozen. The others have \f0" .. config.warmup .. "s \f6to prepare..", ci)
-  playermsg("#####################################################################", ci)
+  playermsg("\f6#####################################################################", ci)
+  playermsg("\f3YOU are seeker! \f6You are now freezed. The others have \f0" .. config.warmup .. "s \f6to prepare..", ci)
+  playermsg("\f6#####################################################################", ci)
 end
 
 local function freeseekers(config)
@@ -125,9 +125,9 @@ local function freeseekers(config)
     if server.interm ~= 0 then return end
     engine.sendpacket(ci.clientnum, 1, n_client(putf({ 20, r = true}, server.N_EDITVAR, engine.ID_VAR, "fog", config.fog and config.fogdistance or 999999), ci):finalize(), -1)
     engine.sendpacket(ci.clientnum, 1, n_client(putf({ 20, r = true}, server.N_EDITVAR, engine.ID_VAR, "fogcolour", config.fogcolour), ci):finalize(), -1)
-    playermsg("########################################################", ci)
+    playermsg("\f6########################################################", ci)
     playermsg("\f0The hunt has begun! FIND AND KILL THEM ALL! You have " .. config.gamelength .. " minutes!", ci)
-    playermsg("########################################################", ci)
+    playermsg("\f6########################################################", ci)
     playermsg(" ", ci)
     server.sendspawn(ci)
   end
@@ -221,7 +221,7 @@ end
 -- commands
 
 commands.add("has", function(info)
-  if module.game.has then return playermsg("Hide & Seek already activated!", info.ci) end
+  if module.game.has then return playermsg("\f6Hide & Seek already activated!", info.ci) end
   local ok, msg = checkgame(true)
   if not ok then return playermsg(msg, info.ci) end
   if info.ci.privilege < server.PRIV_MASTER then server.setmaster(info.ci, true, "", nil, nil, server.PRIV_MASTER, true) end
@@ -233,19 +233,19 @@ end, "Activate Hide & Seek mode!")
 
 commands.add("add", function(info)
   if info.ci.privilege < server.PRIV_MASTER then playermsg("\f3Only masters and admins can add people to the game.", info.ci) return end           
-  if not info.args or info.args == "" or not tonumber(info.args) then playermsg("Please enter the cn of a player to be added to the game.", info.ci) return end
+  if not info.args or info.args == "" or not tonumber(info.args) then playermsg("\f6Please enter the cn of a player to be added to the game.", info.ci) return end
   local who = engine.getclientinfo(tonumber(info.args))
-  if not who then playermsg("Cannot find specified client", info.ci) return end
+  if not who then playermsg("\f3Cannot find specified client", info.ci) return end
   if not module.game.has then
     server.unspectate(who)
-    playermsg("Hide & Seek mode is not active, so the player was only unspecced! Activate the mode with \f0#has", info.ci)
+    playermsg("\f6Hide & Seek mode is not active, so the player was only unspecced! Activate the mode with \f0#has", info.ci)
     return  
   end
   who.extra.queue = true
-  playermsg("Successfully added \f0" .. who.name .. " \f6to the game, starting on next map.", info.ci)
-  playermsg("########################################################", who)
+  playermsg("\f6Successfully added \f0" .. who.name .. " \f6to the game, starting on next map.", info.ci)
+  playermsg("\f6########################################################", who)
   playermsg("\f0You have been added to the Hide & Seek queue and will join on the next map!", who)
-  playermsg("########################################################", who)
+  playermsg("\f6########################################################", who)
 end, "#add <cn>: Add a spectator to the Hide & Seek queue")
 
 -- always preserve teams
@@ -277,14 +277,14 @@ function module.on(state, config)
   inform = spaghetti.later(30000, function()
     for ci in iterators.spectators() do
       if not ci.extra.queue then return end
-      playermsg("An active Hide & Seek game is running. \f0You will be added on the next map. \f6In the meantime, read the \f0#rules\f6!", ci)
+      playermsg("\f6An active Hide & Seek game is running. \f0You will be added on the next map. \f6In the meantime, read the \f0#rules\f6!", ci)
     end
   end, true)
   
   commands.add("rules", function(info)
-    playermsg("One player starts off as the seeker, everyone else has to hide within \f0" .. config.warmup .. " seconds\f6.", info.ci)
-    playermsg("If the seeking team manages to catch everyone before time is up, the seekers win. If not, the hiders have won.", info.ci)
-    playermsg("If you are caught, you will turn into a seeker as well. Masters can add new players to the game with \f0#add <cn>\f6.", info.ci)  
+    playermsg("\f6One player starts off as the seeker, everyone else has to hide within \f0" .. config.warmup .. " seconds\f6.", info.ci)
+    playermsg("\f6If the seeking team manages to catch everyone before time is up, the seekers win. If not, the hiders have won.", info.ci)
+    playermsg("\f6If you are caught, you will turn into a seeker as well. Masters can add new players to the game with \f0#add <cn>\f6.", info.ci)  
   end)
   
   commands.add("fog", function(info)
@@ -310,7 +310,7 @@ function module.on(state, config)
     if info.skip then return end
     if (info.actor.team == "hide" and info.target.team == "seek") or (info.actor.team == info.target.team) then 
       info.skip = true
-      playermsg("You \f3cannot \f6attack your teammates or the seeker.", info.actor)
+      playermsg("\f6You \f3cannot \f6attack your teammates or the seeker.", info.actor)
     end
   end)
   hooks.damageeffects = spaghetti.addhook("damageeffects", function(info)
@@ -379,7 +379,7 @@ function module.on(state, config)
     if info.ci.extra.queue then info.ci.extra.queue = nil return end
     setteam.set(info.ci, "hide", -1)
     playermsg("\n", info.ci)
-    playermsg("You joined the game and need to \f0HIDE QUICKLY!! \f6Seekers are on the way!", info.ci)
+    playermsg("\f6You joined the game and need to \f0HIDE QUICKLY!! \f6Seekers are on the way!", info.ci)
   end)
   hooks.clientdisconnect = spaghetti.addhook("clientdisconnect", function()
     return spaghetti.later(50, function()
