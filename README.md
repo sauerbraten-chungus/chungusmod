@@ -231,6 +231,10 @@ The ZOMBIE OUTBREAK! server can be started with `ZOMBIEVPS=1 ./sauer_server`. It
 
 A server running Rugby mode can be started with `RUGBY=1 ./sauer_server`. If players are carrying the flag in insta ctf, they can shoot a teammate to pass it to them. Four different flavors of Rugby are available, check out the config in *script/load.d/1000-rugby-config.lua* and *script/gamemods/* to see which ones.
 
+**The Hide & Seek configuration**
+
+A server running Hide & Seek can be started with `HAS=1 ./sauer_server`. Players in team "hide" have to hide from the seekers. If a hider is caught, he will join the seekers and fight against a time limit to expose the rest of the hiding players.
+
 **Autoloaded modules**
 
 As described above, scripts in *script/load.d* will automatically execute once on server launch. They introduce some sane default configuration. 
