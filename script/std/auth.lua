@@ -22,7 +22,7 @@
       answer      => the answer
       if the callable cannot provide the answer, the module sets it to the client answer, and the callable must provide
         result    => a true or false value
-        error     => error value to be passed to the completion callable 
+        error     => error value to be passed to the completion callable
   The auth_handler shall set result = false at any time to force an interruption of the auth process. When the module handles the auth process details, it can return the following errors:
     "failauth"    => the client did not reply with a correct answer to the challenge
     "disconnect"  => the client disconnected before auth completed
@@ -33,10 +33,11 @@
 
 ]]--
 
+local socket = require"socket"
 local fp, L, playermsg, putf, parsepacket, uuid = require"utils.fp", require"utils.lambda", require"std.playermsg", require"std.putf", require"std.parsepacket", require"std.uuid"
 local map = fp.map
 
-local module = { domains = {} }
+local module = { domains = {}, create_provider = nil }
 
 
 --take over local auth control
@@ -86,8 +87,6 @@ function module.intersectauths(auths1, auths2)
 end
 
 spaghetti.addhook("clientconnect", L"_.ci.extra.allclaims = {}")
-
-
 
 
 --main auth implementation
@@ -270,53 +269,61 @@ spaghetti.addhook("martian", function(info)
 end, true)
 
 
-
---gauth
-local waitgauth = {}
-local mastercmds = map.sv(L"_", "failauth", "chalauth", "succauth")
-spaghetti.addhook("masterin", function(info)
-  if info.skip then return end
-  local cmd, arg = info.input:match("^(%a+) (%d+)")
-  arg = waitgauth[tonumber(arg)]
-  if not mastercmds[cmd] or not arg or arg.cmd then return end
-  info.skip, arg.cmd = true, info.input
-end)
-spaghetti.addhook("masterdisconnected", function()
-  for _, arg in pairs(waitgauth) do arg.result, arg.error = false, "not connected to authentication server" end
-  waitgauth = {}
-end)
-
-local function askmaster(arg, request)
-  if engine.requestmaster(request .. '\n') then return true end
-  arg.result, arg.error = false, "not connected to authentication server"
-  error(arg.error)
-end
+--external auth providers
 local function waitfield(t, f)
   repeat coroutine.yield() until t[f]
   return t[f]
 end
-local function waitmaster(arg)
-  local cmd = waitfield(arg, "cmd")
-  arg.cmd = nil
-  return cmd
-end
 
-local gauthid = 0
-module.domains[""] = function()
-  gauthid = gauthid + 1
-  local gauthid = gauthid
-  return coroutine.wrap(function(arg)
-    waitgauth[gauthid] = arg
-    askmaster(arg, ("reqauth %d %s"):format(gauthid, arg.user))
-    arg.challenge = waitmaster(arg):match"chalauth %d+ ([%+%-]%x+)"
-    askmaster(arg, ("confauth %d %s"):format(gauthid, waitfield(arg, "answer")))
-    arg.result = waitmaster(arg):match"succauth" or false
-    arg.error = not arg.result and not arg.error and "failauth" or nil
-  end), function(...)
-    waitgauth[gauthid] = nil
-    module.privcompletions[server.PRIV_AUTH](...)
+function module.create_provider (hostname, port, privilege)
+  local sock = nil
+  local function ioerror(action, err)
+    error(("auth: %s: i/o error: %s"):format(hostname, action, tostring(err)))
+    sock:close()
+    sock = nil
+  end
+  local function send(authstate, msg)
+    if not sock then
+      sock = socket.connect(hostname, port)
+      if not sock then
+        ioerror("connecting", "")
+        return false
+      end
+    end
+    local _, err = sock:send(msg .. '\n')
+    if err then
+      authstate.result, authstate.error = false, tostring(err)
+      ioerror(("sending '%s'"):format(msg), tostring(err))
+      return false
+    end
+    return true
+  end
+  local function receive(authstate)
+    if not sock then return end
+    local line, err = sock:receive()
+    if err then
+      authstate.result, authstate.error = false, tostring(err)
+      ioerror("receiving line", tostring(err))
+      return false
+    end
+    return line
+  end
+
+  local reqid = 0
+  return function()
+    reqid = reqid + 1
+    local reqid = reqid
+    return coroutine.wrap(function(authstate)
+      send(authstate, ("reqauth %d %s"):format(reqid, authstate.user))
+      authstate.challenge = receive(authstate):match"chalauth %d+ ([%+%-]%x+)"
+      send(authstate, ("confauth %d %s"):format(reqid, waitfield(authstate, "answer")))
+      authstate.result = receive(authstate):match"succauth" or false
+      authstate.error = not authstate.result and not authstate.error and "failauth" or nil
+    end), privilege
   end
 end
 
+--gauth
+module.domains[""] = module.create_provider("master.sauerbraten.org", 28787, server.PRIV_AUTH)
 
 return module
