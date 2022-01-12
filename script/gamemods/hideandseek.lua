@@ -115,7 +115,7 @@ local function prepseeker(ci, config)
   playermsg("\n", ci)
   playermsg("\n", ci)
   playermsg("\f6#####################################################################", ci)
-  playermsg("\f3YOU are seeker! \f6You are now freezed. The others have \f0" .. config.warmup .. "s \f6to prepare..", ci)
+  playermsg("\f3YOU are seeker! \f6You are now frozen. The others have \f0" .. config.warmup .. "s \f6to prepare..", ci)
   playermsg("\f6#####################################################################", ci)
 end
 
