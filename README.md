@@ -217,11 +217,15 @@ from the spaghettimod root directory.
 
 ## Configuration and Running
 
-**The default configuration**
+### The default configuration
 
 If you start the server with the enviroment variable `SPAGHETTI` set (`SPAGHETTI=1 ./sauer_server`), you will spawn a server using the default configuration defined in *1000-sample-config.lua*, with a default map rotation, abuse protection, and some optional gamemods (quadarmours and flag switch).
 
-Starting the server without an environmant variable will create a vanilla-like Sauerbraten server.
+Starting the server without an environment variable will create a vanilla-like Sauerbraten server.
+
+### Custom configurations
+
+The configuration files for the modes below can be found in the script/load.d directory. Check out which ports and master server settings they use in order to be able to connect and play with others.
 
 **The ZOMBIEVPS configuration**
 
@@ -234,6 +238,10 @@ A server running Rugby mode can be started with `RUGBY=1 ./sauer_server`. If pla
 **The Hide & Seek configuration**
 
 A server running Hide & Seek can be started with `HAS=1 ./sauer_server`. Players in team "hide" have to hide from the seekers. If a hider is caught, he will join the seekers and fight against a time limit to expose the rest of the hiding players.
+
+**The Prop Hunt configuration**
+
+A server running Prop Hunt can be started with `PROPHUNT=1 ./sauer_server`. This is the Sauer adaption of prop hunt, a hide & seek mode where the hiders are disguised as objects on the map, as seen in Garry's Mod or CoD. Props hide across the map, and hunters will try to find them using their mg and chainsaw. The props will make a grunting sound periodically. A client interface to pick and choose from the available models can be found [here](https://github.com/benzomatic/prop-hunt-gui).
 
 **Autoloaded modules**
 
