@@ -4,7 +4,8 @@
 --
 -- ]]
 
-local settime = require"std.settime"
+
+local settime, intermission = require"std.settime", require"std.intermission"
 local hooks = {}
 
 local module = {
