@@ -16,7 +16,8 @@ local fp, L = require"utils.fp", require"utils.lambda"
 local map, I = fp.map, fp.I
 local abuse, playermsg = require"std.abuse", require"std.playermsg"
 
-cs.maxclients = 20
+-- cs.serverip = 0.0.0.0
+cs.maxclients = 2
 cs.serverport = 28785
 
 cs.updatemaster = 1
@@ -36,7 +37,7 @@ cs.publicserver = 2
 
 spaghetti.addhook(server.N_SETMASTER, L"_.skip = _.skip or (_.mn ~= _.ci.clientnum and _.ci.privilege < server.PRIV_AUTH)")
 
-cs.serverdesc = ":: spaghettimod ::"
+cs.serverdesc = "kappapenis"
 
 cs.lockmaprotation = 2
 cs.ctftkpenalty = 0

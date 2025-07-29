@@ -52,8 +52,13 @@ endif
 
 ifndef LUACFLAGS
 ifndef LUALDFLAGS
+# ifndef LUACFLAGS
+# LUACFLAGS := -I$(HOME)/.luaver/lua/5.2.0/include
+# ifndef LUALDFLAGS
+# LUALDFLAGS := -L$(HOME)/.luaver/lua/5.2.0/lib -llua
 ifndef LUAVERSION
-LUAVERSION:= $(shell for i in {jit,"",5.3,53,5.2,52,5.1,51}; do $(PKGCONFIG) --exists lua$$i && echo $$i && exit; done; echo error)
+LUAVERSION:=5.2
+# LUAVERSION:= $(shell for i in {jit,"",5.3,53,5.2,52,5.1,51}; do $(PKGCONFIG) --exists lua$$i && echo $$i && exit; done; echo error)
 ifeq (error,$(LUAVERSION))
 $(error Cannot determine LUAVERSION trying {jit,"",5.3,53,5.2,52,5.1,51}, please provide on command line)
 endif
@@ -63,7 +68,6 @@ LUALDFLAGS:=$(shell $(PKGCONFIG) --libs lua$(LUAVERSION))
 endif
 endif
 endif
-
 
 ifdef WIN
 override LDFLAGS+= -mwindows -static-libgcc -static-libstdc++

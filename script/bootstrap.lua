@@ -1,6 +1,9 @@
 --ease require"my.module"
 package.path = "./script/?.lua;" .. package.path
 
+print("LUA_PATH: " .. package.path)
+print("LUA_CPATH: " .. package.cpath)
+print(_VERSION)
 --Load the Eclipse LDT or ZeroBrane Studio debugger if present
 print("Trying to load the debugger...")
 if pcall(function() assert(require("mobdebug").start()) end) or pcall(function() assert(require("debugger")(nil, nil, nil, nil, nil, nil, 1)) end) then

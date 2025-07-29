@@ -17,7 +17,7 @@ local map, range, fold, last, pick, I, U = fp.map, fp.range, fp.fold, fp.last, f
 local abuse, playermsg, commands, ents, hitpush = require"std.abuse", require"std.playermsg", require"std.commands", require"std.ents", require"std.hitpush"
 
 cs.maxclients = 14
-cs.serverport = 5000
+cs.serverport = 28785
 
 cs.updatemaster = 1
 spaghetti.later(10000, L'engine.requestmaster("\\n")', true)
@@ -29,7 +29,7 @@ server.mastermask = server.MM_PUBSERV + server.MM_AUTOAPPROVE
 cs.serverauth = "prophunt"
 local auth = require("std.auth")
 
-cs.adduser("benzomatic", "prophunt", "-a2bdd998d6bf6927040f366cc699cd7fcf3231db0f92cf5b", "a")
+cs.adduser("kappapenis", "prophunt", "-a2bdd998d6bf6927040f366cc699cd7fcf3231db0f92cf5b", "a")
 
 table.insert(auth.preauths, "prophunt")
 
