@@ -10,11 +10,14 @@ local ltn12 = require("ltn12")
 
 -- Configuration
 local QUERY_SERVICE_URL = "http://127.0.0.1:8080/intermission" -- Adjust to your server query client URL
+local stored_jwt = nil
+
+local function setJWT(jwt)
+  stored_jwt = jwt
+end
 
 spaghetti.addhook("intermission", function(info)
   print("Intermission hook triggered - sending query to service")
-  
-  -- Method 1: If LuaSocket is available
   if http then
     local response_body = {}
     local res, code, response_headers, status = http.request{
@@ -22,11 +25,11 @@ spaghetti.addhook("intermission", function(info)
       method = "GET",
       headers = {
         ["User-Agent"] = "ChungusMod/1.0",
-        ["Content-Type"] = "application/json"
+        ["Content-Type"] = "application/json",
+        ["Authorization"] = "Bearer " .. stored_jwt
       },
       sink = ltn12.sink.table(response_body)
     }
-    
     if code == 200 then
       print("Successfully queried server: " .. table.concat(response_body))
     else
@@ -35,5 +38,8 @@ spaghetti.addhook("intermission", function(info)
   else
     print("HTTP library not available")
   end
-  
 end)
+
+return {
+  setJWT = setJWT
+}
