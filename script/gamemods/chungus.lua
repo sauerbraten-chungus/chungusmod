@@ -7,6 +7,7 @@
 
 local http = require("socket.http")
 local ltn12 = require("ltn12")
+local json = require("dkjson")
 local settime, intermission = require"std.settime", require"std.intermission"
 local hooks = {}
 
@@ -25,14 +26,22 @@ local function fetchJWT()
     method = "GET",
     headers = {
       ["CHUNGUS-KEY"] =  "chungus_game",
-      ["Content-Length"] = "0"
     },
     sink = ltn12.sink.table(response_body)
   }
   if code == 200 then
-    local jwt = table.concat(response_body)
-    print("JWT Obtained " .. jwt:sub(1, 20) .. "...")
-    return jwt
+    local response_text = table.concat(response_body)
+    local success, response_data = pcall(json.decode, response_text)
+
+    if success and response_data.token then
+      local jwt = response_data.token
+      print("JWT Obtained " .. jwt:sub(1, 20) .. "...")
+      return jwt
+    else
+      print("Failed to parse JWT response: " .. response_text)
+      return nil
+    end
+
   else
     print("Failed to get JWT: " .. table.concat(response_body))
     return nil
