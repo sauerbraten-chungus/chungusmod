@@ -44,4 +44,7 @@ EXPOSE 28786/tcp
 EXPOSE 28786/udp
 
 # Set the default command
-CMD ["./sauer_server"]
+ENV CHUNGUS=1
+# CMD ["./sauer_server"]
+# CMD CHUNGUS=1 ./sauer_server
+CMD ["sh", "-c", "echo CHUNGUS=$CHUNGUS && ./sauer_server"]

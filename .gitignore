@@ -7,7 +7,6 @@
 *.exe
 /core.*
 /enet/*
-/script/load.d/*
 /script/others/*
 /.exechistory
 /*.demos/
