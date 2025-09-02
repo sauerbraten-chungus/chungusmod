@@ -14,6 +14,7 @@ local hooks = {}
 local module = {
   config = {
     gamelength = 12, -- minutes
+    auth_url = os.getenv("AUTH_URL") or "http://localhost:8081/auth"
   },
   jwt = nil
 }
@@ -22,7 +23,7 @@ local function fetchJWT()
   -- Your authentication logic here
   local response_body = {}
   local res, code, headers, status = http.request{
-    url = "http://127.0.0.1:8081/auth",
+    url = module.config.auth_url,
     method = "GET",
     headers = {
       ["CHUNGUS-KEY"] =  "chungus_game",
