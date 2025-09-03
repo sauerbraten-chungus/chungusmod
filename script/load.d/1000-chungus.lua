@@ -31,7 +31,19 @@ local auth = require"std.auth"
 cs.serverauth = "spaghetti"
 table.insert(auth.preauths, "spaghetti")
 
-cs.adduser("benzomatic", "spaghetti", "+a26e607b5554fd5b316a4bdd1bfc4734587aa82480fb081f", "a")
+local function get_env_or_default(env_name, default_value)
+  local value = os.getenv(env_name)
+  if value == nil then
+    print("Environment variable for " .. env_name .. " not found, using default")
+    return default_value
+  end
+  return value
+end
+
+local admin_name = get_env_or_default("ADMIN_NAME", "kappachungus")
+local admin_domain = get_env_or_default("ADMIN_DOMAIN", "kappachungus.auth")
+local admin_public_key = get_env_or_default("ADMIN_PUBLIC_KEY", "+425ae6707d8c05dead7100fb2f73d44a9778081b6d77c54c")
+cs.adduser(admin_name, admin_domain, admin_public_key, "a")
 
 cs.publicserver = 2
 

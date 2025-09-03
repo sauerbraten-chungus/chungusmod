@@ -9,7 +9,7 @@ local http = require("socket.http")
 local ltn12 = require("ltn12")
 
 -- Configuration
-local QUERY_SERVICE_URL = "http://127.0.0.1:8080/intermission" -- Adjust to your server query client URL
+local QUERY_SERVICE_URL = os.getenv("QUERY_SERVICE_URL") or "http://server:8080/intermission"
 local stored_jwt = nil
 
 local function setJWT(jwt)
