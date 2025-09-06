@@ -46,6 +46,7 @@ EXPOSE 28786/udp
 # Set the default command
 ENV CHUNGUS=1
 ENV AUTH_URL=http://auth:8081/auth
+ENV QUERY_SERVER_URL=http://server:8080/intermission
 ENV ADMIN_NAME=kappachungus
 ENV ADMIN_DOMAIN=kappachungus.auth
 ENV ADMIN_PUBLIC_KEY=+425ae6707d8c05dead7100fb2f73d44a9778081b6d77c54c
