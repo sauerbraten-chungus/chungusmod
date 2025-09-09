@@ -17,7 +17,7 @@ local function setJWT(jwt)
 end
 
 spaghetti.addhook("intermission", function(info)
-  print("Intermission hook triggered - sending query to service")
+  print("Intermission hook triggered - sending query to service at " .. QUERY_SERVICE_URL)
   if http then
     local response_body = {}
     local res, code, response_headers, status = http.request{
