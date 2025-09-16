@@ -16,9 +16,18 @@ local fp, L = require"utils.fp", require"utils.lambda"
 local map, I = fp.map, fp.I
 local abuse, playermsg = require"std.abuse", require"std.playermsg"
 
+local function get_env_or_default(env_name, default_value)
+  local value = os.getenv(env_name)
+  if value == nil then
+    print("Environment variable for " .. env_name .. " not found, using default")
+    return default_value
+  end
+  return value
+end
+
 -- cs.serverip = 0.0.0.0
 cs.maxclients = 2
-cs.serverport = 28785
+cs.serverport = get_env_or_default("GAME_SERVER_PORT", "28785")
 
 cs.updatemaster = 1
 spaghetti.later(10000, L'engine.requestmaster("\\n")', true)
@@ -31,14 +40,6 @@ local auth = require"std.auth"
 cs.serverauth = "spaghetti"
 table.insert(auth.preauths, "spaghetti")
 
-local function get_env_or_default(env_name, default_value)
-  local value = os.getenv(env_name)
-  if value == nil then
-    print("Environment variable for " .. env_name .. " not found, using default")
-    return default_value
-  end
-  return value
-end
 
 local admin_name = get_env_or_default("ADMIN_NAME", "kappachungus")
 local admin_domain = get_env_or_default("ADMIN_DOMAIN", "kappachungus.auth")
