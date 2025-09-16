@@ -28,9 +28,12 @@ local function get_env_or_default(env_name, default_value)
   return value
 end
 
+local gameserverport = get_env_or_default("GAME_SERVER_PORT", 28785)
 -- cs.serverip = 0.0.0.0
 cs.maxclients = 2
-cs.serverport = get_env_or_default("GAME_SERVER_PORT", 28785)
+cs.serverport = gameserverport
+
+print("Running on port: " .. cs.serverport)
 
 cs.updatemaster = 1
 spaghetti.later(10000, L'engine.requestmaster("\\n")', true)
