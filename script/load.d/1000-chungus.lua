@@ -22,12 +22,15 @@ local function get_env_or_default(env_name, default_value)
     print("Environment variable for " .. env_name .. " not found, using default")
     return default_value
   end
+  if env_name == "GAME_SERVER_PORT" then
+    return tonumber(value)
+  end
   return value
 end
 
 -- cs.serverip = 0.0.0.0
 cs.maxclients = 2
-cs.serverport = get_env_or_default("GAME_SERVER_PORT", "28785")
+cs.serverport = get_env_or_default("GAME_SERVER_PORT", 28785)
 
 cs.updatemaster = 1
 spaghetti.later(10000, L'engine.requestmaster("\\n")', true)
