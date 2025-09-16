@@ -37,6 +37,12 @@ RUN luarocks install mmdblua
 # Build the server
 RUN make
 
+# Expose game server ports
+# EXPOSE 28785/tcp
+# EXPOSE 28785/udp
+# EXPOSE 28786/tcp
+# EXPOSE 28786/udp
+
 # Set the default command
 ENV CHUNGUS=1
 ENV AUTH_URL=http://auth:8081/auth
