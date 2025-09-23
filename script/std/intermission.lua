@@ -4,11 +4,9 @@
   A module to trigger player query service  
 ]]--
 
--- Check if LuaSocket is available (common HTTP library for Lua)
 local http = require("socket.http")
 local ltn12 = require("ltn12")
 
--- Configuration
 local QUERY_SERVICE_URL = os.getenv("QUERY_SERVICE_URL") or "http://server:8080/intermission"
 local stored_jwt = nil
 

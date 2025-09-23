@@ -56,9 +56,7 @@ cs.publicserver = 2
 
 spaghetti.addhook(server.N_SETMASTER, L"_.skip = _.skip or (_.mn ~= _.ci.clientnum and _.ci.privilege < server.PRIV_AUTH)")
 
-require"gamemods.chungus".on({
-  gamelength = 1, --minutes
-})
+require"gamemods.chungus"
 
 cs.serverdesc = "kappapenis"
 
