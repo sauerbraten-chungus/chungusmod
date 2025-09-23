@@ -30,7 +30,8 @@ end
 
 local gameserverport = get_env_or_default("GAME_SERVER_PORT", 28785)
 -- cs.serverip = 0.0.0.0
-cs.maxclients = 2
+cs.maxclients = 8
+-- cs.serverbotbalance = 0
 cs.serverport = gameserverport
 
 print("Running on port: " .. cs.serverport)
@@ -53,6 +54,10 @@ local admin_public_key = get_env_or_default("ADMIN_PUBLIC_KEY", "+425ae6707d8c05
 cs.adduser(admin_name, admin_domain, admin_public_key, "a")
 
 cs.publicserver = 2
+
+-- spaghetti.addhook("changemap", function(info)
+--   server.aiman.addai(1, 8)
+-- end)
 
 spaghetti.addhook(server.N_SETMASTER, L"_.skip = _.skip or (_.mn ~= _.ci.clientnum and _.ci.privilege < server.PRIV_AUTH)")
 
