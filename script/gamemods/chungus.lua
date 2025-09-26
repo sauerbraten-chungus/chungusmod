@@ -97,6 +97,13 @@ spaghetti.addhook("clientconnect", function(info)
   print(client_id .. " has connected")
   module.game.players[client_id] = true
   showplayers()
+  if not module.game.is_competitive then
+      local total_combatants = server.numclients(-1, true, true) 
+      local total_players = server.numclients(-1, true, false)
+      if total_combatants > total_players then
+        server.aiman.deleteai()
+      end 
+  end
 end)
 
 spaghetti.addhook("clientdisconnect", function(info)
@@ -134,6 +141,21 @@ commands.add("unready", function(info)
   end
 end)
 
+commands.add("addbot", function(info)
+  if module.game.is_competitive == true then return end
+  local total_combatants = server.numclients(-1, true, false, false)
+  if total_combatants < cs.maxclients then
+    server.aiman.addai(-1, -1)
+  else
+    playermsg("Cant add anymore bots", info.ci)
+  end
+end)
+
+commands.add("delbot", function(info)
+  if module.game.is_competitive == true then return end
+  server.aiman.deleteai()
+end)
+
 function module.on(config)
   module.game.is_competitive = true
   hooks = {}
@@ -147,12 +169,22 @@ function module.on(config)
     print("hello bro 2")
     settime.set(module.config.game_length * 60 * 1000)
     local num_bots = get_max_bots()
-    for _ = 1, num_bots do
-      server.aiman.addai(1, -1)
-    end 
+    -- for _ = 1, num_bots do
+    --   server.aiman.addai(1, -1)
+    -- end 
   end)
 
   spaghetti.addhook("servmodesetup", function(info)
+    print("HELLO KEK")
+  end)
+
+  -- log hook
+  spaghetti.addhook(server.N_ADDBOT, function(info)
+    -- if info.skip then return end
+    -- info.skip = true
+    -- if info.ci.privilege < server.PRIV_ADMIN then playermsg("Only admins can add zombies", info.ci) return end
+    print("adding bot")
+    server.aiman.addai(1, -1)
   end)
 
 end
