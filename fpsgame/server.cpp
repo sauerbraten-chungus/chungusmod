@@ -3097,6 +3097,16 @@ namespace server
                 spaghetti::simpleconstevent(spaghetti::hotstring::martian_preconnectchan, sender, p, ci, cq, cm);
                 return;
             }
+            else if(chan==2){
+                lua_string data1, data2, data3;
+                getstring(data1, p, sizeof(data1));
+                getstring(data2, p, sizeof(data2));
+                getstring(data3, p, sizeof(data3));
+                logoutf(data1);
+                logoutf(data2);
+                logoutf(data3);
+                logoutf("hi");
+            }
             else if(chan!=1) {
                 if(!spaghetti::simplehook(spaghetti::hotstring::martian_preconnectchan, sender, p, ci, cq, cm))
                     disconnect_client(sender, DISC_MSGERR);
