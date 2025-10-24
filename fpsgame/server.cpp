@@ -3106,7 +3106,7 @@ namespace server
                 logoutf(data2);
                 logoutf(data3);
                 logoutf("hi");
-                if(spaghetti::simplehook(spaghetti::hotstring::chungustrator));
+                if(spaghetti::simplehook(spaghetti::hotstring::chungustrator, data1, data2, data3));
                 return;
             }
             else if(chan!=1) {

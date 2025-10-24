@@ -108,6 +108,10 @@ end)
 
 spaghetti.addhook("chungustrator", function(info)
   print("CHUNGUSTRATOR DEBUG")
+  local data = info.data1
+  print(info.data1)
+  print(info.data2)
+  print(info.data3)
 end)
 
 spaghetti.addhook("clientdisconnect", function(info)
