@@ -177,6 +177,7 @@ struct hotstring{
         allowbroadcast,
         masterconnected, masterdisconnected,
         setupdemorecord, recordpacket, enddemorecord,
+        chungustrator,
         maxhotstring
     };
     static void push(int str){

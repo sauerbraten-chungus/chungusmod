@@ -106,6 +106,10 @@ spaghetti.addhook("clientconnect", function(info)
   end
 end)
 
+spaghetti.addhook("chungustrator", function(info)
+  print("CHUNGUSTRATOR DEBUG")
+end)
+
 spaghetti.addhook("clientdisconnect", function(info)
   local client_id = info.ci.extra.uuid
   print("HE CANT USE A STUN " .. client_id .. " HE DISCONNCETED")
@@ -186,7 +190,6 @@ function module.on(config)
     print("adding bot")
     server.aiman.addai(1, -1)
   end)
-
 end
 
 return module

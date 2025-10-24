@@ -149,6 +149,7 @@ void init(){
     hot(allowbroadcast);
     hot(masterconnected); hot(masterdisconnected);
     hot(setupdemorecord); hot(recordpacket); hot(enddemorecord);
+    hot(chungustrator);
 #undef hot
 
     bindengine();
