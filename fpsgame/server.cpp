@@ -3098,15 +3098,8 @@ namespace server
                 return;
             }
             else if(chan==2){
-                lua_string data1, data2, data3;
-                getstring(data1, p, sizeof(data1));
-                getstring(data2, p, sizeof(data2));
-                getstring(data3, p, sizeof(data3));
-                logoutf(data1);
-                logoutf(data2);
-                logoutf(data3);
-                logoutf("hi");
-                if(spaghetti::simplehook(spaghetti::hotstring::chungustrator, data1, data2, data3));
+                getstring(text, p);
+                if(spaghetti::simplehook(spaghetti::hotstring::chungustrator, text))
                 return;
             }
             else if(chan!=1) {

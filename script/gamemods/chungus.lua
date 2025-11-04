@@ -107,11 +107,11 @@ spaghetti.addhook("clientconnect", function(info)
 end)
 
 spaghetti.addhook("chungustrator", function(info)
-  print("CHUNGUSTRATOR DEBUG")
-  local data = info.data1
-  print(info.data1)
-  print(info.data2)
-  print(info.data3)
+    print("CHUNGUSTRATOR DEBUG")
+    for pair in string.gmatch(info.text, "([^,]+)") do
+        local key, value = pair:match("([^:]+):(.+)")
+        print(key, value)
+    end
 end)
 
 spaghetti.addhook("clientdisconnect", function(info)
