@@ -23,6 +23,7 @@ local module = {
         votes = {},
         ready_count = 0
     },
+    verification_codes = {},
     jwt = nil
 }
 
@@ -118,6 +119,7 @@ spaghetti.addhook("chungustrator", function(info)
     print("CHUNGUSTRATOR DEBUG")
     for pair in string.gmatch(info.text, "([^,]+)") do
         local key, value = pair:match("([^:]+):(.+)")
+        module.game.verification_codes[key] = value
         print(key, value)
     end
 end)
@@ -127,6 +129,10 @@ spaghetti.addhook("clientdisconnect", function(info)
     print("HE CANT USE A STUN " .. client_id .. " HE DISCONNCETED")
     module.game.players[client_id] = nil
     showplayers()
+end)
+
+commands.add("code", function(info)
+    print(info.args)
 end)
 
 commands.add("ready", function(info)
