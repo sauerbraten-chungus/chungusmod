@@ -69,6 +69,8 @@ commands.add("rules", function(info)
         info.ci)
 end)
 
+
+
 local function showplayers()
     print("Players connected: ")
     if next(module.game.players) then
@@ -133,6 +135,11 @@ end)
 
 commands.add("code", function(info)
     print(info.args)
+    for id, code in module.verification_codes do
+        if info.args == code and info.ci.state.state == engine.CS_SPECTATOR then
+            print("spectator spotted")
+        end
+    end
 end)
 
 commands.add("ready", function(info)
