@@ -121,7 +121,7 @@ spaghetti.addhook("chungustrator", function(info)
     print("CHUNGUSTRATOR DEBUG")
     for pair in string.gmatch(info.text, "([^,]+)") do
         local key, value = pair:match("([^:]+):(.+)")
-        module.game.verification_codes[key] = value
+        module.verification_codes[key] = value
         print(key, value)
     end
 end)
