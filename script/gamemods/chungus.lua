@@ -114,7 +114,7 @@ spaghetti.addhook("chungustrator", function(info)
     for pair in string.gmatch(info.text, "([^,]+)") do
         local chungid, verification_code = pair:match("([^:]+):(.+)")
         module.chunguses[chungid].verification_code = verification_code
-        module.chunguses[chungid].uuid = nil
+        module.chunguses[chungid].uuid = ""
         print(chungid, verification_code)
     end
 end)
@@ -123,6 +123,7 @@ spaghetti.addhook("clientdisconnect", function(info)
     local client_id = info.ci.extra.uuid
     local client_chungid = module.game.players[client_id].chungid
     module.chunguses[client_chungid].uuid = nil
+    module.game.votes[client_id] = nil
     print("HE CANT USE A STUN " .. client_id .. " HE DISCONNCETED")
 end)
 
