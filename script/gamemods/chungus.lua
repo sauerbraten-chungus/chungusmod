@@ -123,16 +123,19 @@ spaghetti.addhook("clientdisconnect", function(info)
     local client_id = info.ci.extra.uuid
     local client_chungid = module.game.players[client_id].chungid
     module.chunguses[client_chungid].uuid = nil
-    module.game.votes[client_id] = nil
+    if module.game.votes[client_id] ~= nil then
+        module.game.ready_count = module.game.ready_count - 1
+        module.game.votes[client_id] = nil
+    end
     print("HE CANT USE A STUN " .. client_id .. " HE DISCONNCETED")
 end)
 
 commands.add("code", function(info)
     print(info.args)
-    if not is_spectator(info.ci) then return end
-    for chungid, data in pairs(module.chunguses) do
+    local client_id = info.ci.extra.uuid
+    if not is_spectator(info.ci) or module.game.players[client_id].chungid ~= nil then return end
+    for chungid, _ in pairs(module.chunguses) do
         if info.args == chungid and module.chunguses[chungid].uuid == nil then
-            local client_id = info.ci.extra.uuid
             module.chunguses[chungid].uuid = client_id
             module.game.players[client_id].chungid = chungid
             server.unspectate(info.ci)
