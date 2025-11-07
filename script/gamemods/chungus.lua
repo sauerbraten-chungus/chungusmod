@@ -23,7 +23,7 @@ local module = {
         votes = {},
         ready_count = 0
     },
-    verification_codes = {},
+    chunguses = {},
     jwt = nil
 }
 
@@ -69,19 +69,6 @@ commands.add("rules", function(info)
         info.ci)
 end)
 
-
-
-local function showplayers()
-    print("Players connected: ")
-    if next(module.game.players) then
-        for client_id, value in pairs(module.game.players) do
-            print(client_id)
-        end
-    else
-        print("No players found in module")
-    end
-end
-
 local function startmatch()
     module.on()
     server.rotatemap(true)
@@ -90,8 +77,10 @@ end
 local function readycheck()
     local player_count = server.numclients(-1, true, true)
     if player_count == module.game.ready_count then
+        print("READY CHECK = TRUE")
         return true
     else
+        print("READY CHECK = FALSE")
         return false
     end
 end
@@ -103,11 +92,14 @@ local function get_max_bots()
     return max_players - player_count
 end
 
+local function is_spectator(ci)
+    return ci.state.state == engine.CS_SPECTATOR
+end
+
 spaghetti.addhook("clientconnect", function(info)
     local client_id = info.ci.extra.uuid
     print(client_id .. " has connected")
-    module.game.players[client_id] = true
-    showplayers()
+    module.game.players[client_id] = nil
     if not module.game.is_competitive then
         local total_combatants = server.numclients(-1, true, true)
         local total_players = server.numclients(-1, true, false)
@@ -120,30 +112,35 @@ end)
 spaghetti.addhook("chungustrator", function(info)
     print("CHUNGUSTRATOR DEBUG")
     for pair in string.gmatch(info.text, "([^,]+)") do
-        local key, value = pair:match("([^:]+):(.+)")
-        module.verification_codes[key] = value
-        print(key, value)
+        local chungid, verification_code = pair:match("([^:]+):(.+)")
+        module.chunguses[chungid].verification_code = verification_code
+        module.chunguses[chungid].uuid = nil
+        print(chungid, verification_code)
     end
 end)
 
 spaghetti.addhook("clientdisconnect", function(info)
     local client_id = info.ci.extra.uuid
+    local client_chungid = module.game.players[client_id].chungid
+    module.chunguses[client_chungid].uuid = nil
     print("HE CANT USE A STUN " .. client_id .. " HE DISCONNCETED")
-    module.game.players[client_id] = nil
-    showplayers()
 end)
 
 commands.add("code", function(info)
     print(info.args)
-    for id, code in module.verification_codes do
-        if info.args == code and info.ci.state.state == engine.CS_SPECTATOR then
-            print("spectator spotted")
+    if not is_spectator(info.ci) then return end
+    for chungid, data in pairs(module.chunguses) do
+        if info.args == chungid and module.chunguses[chungid].uuid == nil then
+            local client_id = info.ci.extra.uuid
+            module.chunguses[chungid].uuid = client_id
+            module.game.players[client_id].chungid = chungid
+            server.unspectate(info.ci)
         end
     end
 end)
 
 commands.add("ready", function(info)
-    if module.game.is_competitive == true then return end
+    if module.game.is_competitive == true or is_spectator(info.ci) then return end
     local client_id = info.ci.extra.uuid
     if module.game.votes[client_id] == nil then
         module.game.votes[client_id] = true
@@ -159,7 +156,7 @@ commands.add("ready", function(info)
 end)
 
 commands.add("unready", function(info)
-    if module.game.is_competitive == true then return end
+    if module.game.is_competitive == true or is_spectator(info.ci) then return end
     local client_id = info.ci.extra.uuid
     if module.game.votes[client_id] == nil then
         playermsg("You are already unreadied-up, use #\"ready\" to ready-up", info.ci)
@@ -171,7 +168,7 @@ commands.add("unready", function(info)
 end)
 
 commands.add("addbot", function(info)
-    if module.game.is_competitive == true then return end
+    if module.game.is_competitive == true or is_spectator(info.ci) then return end
     local total_combatants = server.numclients(-1, true, false, false)
     if total_combatants < cs.maxclients then
         server.aiman.addai(-1, -1)
@@ -181,7 +178,7 @@ commands.add("addbot", function(info)
 end)
 
 commands.add("delbot", function(info)
-    if module.game.is_competitive == true then return end
+    if module.game.is_competitive == true or is_spectator(info.ci) then return end
     server.aiman.deleteai()
 end)
 
