@@ -99,7 +99,7 @@ end
 spaghetti.addhook("clientconnect", function(info)
     local client_id = info.ci.extra.uuid
     print(client_id .. " has connected")
-    module.game.players[client_id] = nil
+    module.game.players[client_id] = {}
     if not module.game.is_competitive then
         local total_combatants = server.numclients(-1, true, true)
         local total_players = server.numclients(-1, true, false)
