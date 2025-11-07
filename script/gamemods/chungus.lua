@@ -99,7 +99,9 @@ end
 spaghetti.addhook("clientconnect", function(info)
     local client_id = info.ci.extra.uuid
     print(client_id .. " has connected")
-    module.game.players[client_id] = {}
+    module.game.players[client_id] = {
+        chungid = ""
+    }
     if not module.game.is_competitive then
         local total_combatants = server.numclients(-1, true, true)
         local total_players = server.numclients(-1, true, false)
@@ -137,9 +139,9 @@ end)
 commands.add("code", function(info)
     print(info.args)
     local client_id = info.ci.extra.uuid
-    if not is_spectator(info.ci) or module.game.players[client_id].chungid ~= nil then return end
+    if not is_spectator(info.ci) or module.game.players[client_id].chungid ~= "" then return end
     for chungid, _ in pairs(module.chunguses) do
-        if info.args == chungid and module.chunguses[chungid].uuid == nil then
+        if info.args == module.chunguses[chungid].verification_code then
             module.chunguses[chungid].uuid = client_id
             module.game.players[client_id].chungid = chungid
             server.unspectate(info.ci)
