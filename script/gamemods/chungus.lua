@@ -127,21 +127,28 @@ spaghetti.addhook("clientdisconnect", function(info)
     local client_id = info.ci.extra.uuid
     local client_chungid = module.game.players[client_id].chungid
     if module.chunguses[client_chungid] then
-        module.chunguses[client_chungid].uuid = nil
+        module.chunguses[client_chungid].uuid = ""
     end
-    if module.game.votes[client_id] then
+    if not module.game.is_competitive and module.game.votes[client_id] then
         module.game.ready_count = module.game.ready_count - 1
         module.game.votes[client_id] = nil
+        if module.game.ready_count >= 1 then
+            server.sendservmsg(info.ci.name .. " has disconnected while readied up")
+            server.sendservmsg("All players must re-ready up for match integrity")
+            module.game.votes = {}
+            module.game.ready_count = 0
+        end
     end
+    module.game.players[client_id] = nil
     print("HE CANT USE A STUN " .. client_id .. " HE DISCONNCETED")
 end)
 
 commands.add("code", function(info)
     print(info.args)
     local client_id = info.ci.extra.uuid
-    if not is_spectator(info.ci) or module.game.players[client_id].chungid ~= "" then return end
+    if not is_spectator(info.ci) or module.game.is_competitive or module.game.players[client_id].chungid ~= "" then return end
     for chungid, _ in pairs(module.chunguses) do
-        if info.args == module.chunguses[chungid].verification_code then
+        if info.args == module.chunguses[chungid].verification_code and module.chunguses[chungid].uuid == "" then
             module.chunguses[chungid].uuid = client_id
             module.game.players[client_id].chungid = chungid
             server.unspectate(info.ci)
@@ -150,7 +157,7 @@ commands.add("code", function(info)
 end)
 
 commands.add("ready", function(info)
-    if module.game.is_competitive == true or is_spectator(info.ci) then return end
+    if module.game.is_competitive or is_spectator(info.ci) then return end
     local client_id = info.ci.extra.uuid
     if module.game.votes[client_id] == nil then
         module.game.votes[client_id] = true
@@ -166,7 +173,7 @@ commands.add("ready", function(info)
 end)
 
 commands.add("unready", function(info)
-    if module.game.is_competitive == true or is_spectator(info.ci) then return end
+    if module.game.is_competitive or is_spectator(info.ci) then return end
     local client_id = info.ci.extra.uuid
     if module.game.votes[client_id] == nil then
         playermsg("You are already unreadied-up, use #\"ready\" to ready-up", info.ci)
@@ -178,7 +185,7 @@ commands.add("unready", function(info)
 end)
 
 commands.add("addbot", function(info)
-    if module.game.is_competitive == true or is_spectator(info.ci) then return end
+    if module.game.is_competitive or is_spectator(info.ci) then return end
     local total_combatants = server.numclients(-1, true, false, false)
     if total_combatants < cs.maxclients then
         server.aiman.addai(-1, -1)
@@ -188,7 +195,7 @@ commands.add("addbot", function(info)
 end)
 
 commands.add("delbot", function(info)
-    if module.game.is_competitive == true or is_spectator(info.ci) then return end
+    if module.game.is_competitive or is_spectator(info.ci) then return end
     server.aiman.deleteai()
 end)
 
