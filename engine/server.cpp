@@ -118,7 +118,9 @@ struct client                   // server side version of "dynent" type
 vector<client *> clients;
 
 ENetHost *serverhost = NULL;
-int laststatus = 0; 
+ENetHost *chungushost = NULL;
+ENetPeer *chunguspeer = NULL;
+int laststatus = 0;
 ENetSocket pongsock = ENET_SOCKET_NULL, lansock = ENET_SOCKET_NULL;
 
 int localclients = 0, nonlocalclients = 0;
@@ -630,6 +632,22 @@ void updatemasterserver()
     lastupdatemaster = totalmillis ? totalmillis : 1;
 }
 
+void servicechungus()
+{
+    if(!chungushost) return;
+    ENetEvent event;
+    while(enet_host_service(chungushost, &event, 0) > 0)
+    {
+        switch(event.type)
+        {
+            case ENET_EVENT_TYPE_CONNECT: logoutf("external link up"); break;
+            case ENET_EVENT_TYPE_RECEIVE: /* handle data */ enet_packet_destroy(event.packet); break;
+            case ENET_EVENT_TYPE_DISCONNECT: chunguspeer = nullptr; break;
+        }
+    }
+    enet_host_flush(chungushost);
+}
+
 uint totalsecs = 0;
 
 void updatetime()
@@ -670,6 +688,7 @@ void serverslice(bool dedicated, uint timeout)   // main server update, called f
     if(elapsedtime) spaghetti::later::check();
     server::serverupdate();
 
+    servicechungus();
     flushmasteroutput();
     checkserversockets();
 
@@ -1122,6 +1141,15 @@ bool setuplistenserver(bool dedicated)
         if(lansock == ENET_SOCKET_NULL) conoutf(CON_WARN, "WARNING: could not create LAN server info socket");
         else enet_socket_set_option(lansock, ENET_SOCKOPT_NONBLOCK, 1);
     }
+
+    chungushost = enet_host_create(nullptr, 1, 2, 0, 0);
+    if(!chungushost) return servererror(dedicated, "failed to create an ENet client");
+    ENetAddress chunguspeer_address = {};
+    enet_address_set_host(&chunguspeer_address, "127.0.0.1");
+    chunguspeer_address.port = 30000;
+    chunguspeer = enet_host_connect(chungushost, &chunguspeer_address, 2, 0);
+    if(!chunguspeer) return servererror(dedicated, "failed to connect to ENet server");
+
     return true;
 }
 
