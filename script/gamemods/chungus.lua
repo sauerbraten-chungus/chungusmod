@@ -14,7 +14,7 @@ local hooks = {}
 
 local module = {
     config = {
-        game_length = 5, -- minutes
+        game_length = 1, -- minutes
         auth_url = os.getenv("AUTH_URL") or "http://localhost:8081/auth"
     },
     game = {
@@ -154,6 +154,10 @@ commands.add("code", function(info)
             server.unspectate(info.ci)
         end
     end
+end)
+
+commands.add("devready", function(info)
+    startmatch()
 end)
 
 commands.add("ready", function(info)
