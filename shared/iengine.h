@@ -456,6 +456,15 @@ extern int maxclients;
 
 enum { DISC_NONE = 0, DISC_EOP, DISC_LOCAL, DISC_KICK, DISC_MSGERR, DISC_IPBAN, DISC_PRIVATE, DISC_MAXCLIENTS, DISC_TIMEOUT, DISC_OVERFLOW, DISC_PASSWORD, DISC_NUM };
 
+// chungus protocol messages
+enum
+{
+    CHUNGUS_INTERMISSION = 0,
+    CHUNGUS_MAPCHANGE,
+    CHUNGUS_PLAYERCOUNT,
+    CHUNGUS_NUMMSG
+};
+
 namespace server{
 struct clientinfo;
 }
@@ -478,6 +487,7 @@ extern void sendserverinforeply(ucharbuf &p);
 extern bool requestmaster(const char *req);
 extern bool requestmasterf(const char *fmt, ...) PRINTFARGS(1, 2);
 extern bool isdedicatedserver();
+extern void notifychungusintermission();
 
 // client
 extern void sendclientpacket(ENetPacket *packet, int chan);
