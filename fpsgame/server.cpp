@@ -2330,6 +2330,7 @@ namespace server
             if(smode) smode->intermission();
             changegamespeed(100);
             interm = gamemillis + 10000;
+            notifychungusintermission();
             spaghetti::simpleconstevent(spaghetti::hotstring::intermission);
         }
     }

@@ -648,6 +648,15 @@ void servicechungus()
     enet_host_flush(chungushost);
 }
 
+void notifychungusintermission()
+{
+    if(!chunguspeer) return;
+    packetbuf p(MAXTRANS, ENET_PACKET_FLAG_RELIABLE);
+    putint(p, CHUNGUS_INTERMISSION);
+    sendstring("kappa", p);
+    enet_peer_send(chunguspeer, 0, p.finalize());
+}
+
 uint totalsecs = 0;
 
 void updatetime()
