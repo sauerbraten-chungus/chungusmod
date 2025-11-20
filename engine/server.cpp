@@ -1,6 +1,7 @@
 // server.cpp: little more than enhanced multicaster
 // runs dedicated or as client coroutine
 
+#include <cstdio>
 #include <random>
 #include "engine.h"
 #include "spaghetti.h"
@@ -651,6 +652,7 @@ void servicechungus()
 void notifychungusintermission()
 {
     if(!chunguspeer) return;
+    printf("notifying chungus peer");
     packetbuf p(MAXTRANS, ENET_PACKET_FLAG_RELIABLE);
     putint(p, CHUNGUS_INTERMISSION);
     sendstring("kappa", p);
@@ -1154,8 +1156,13 @@ bool setuplistenserver(bool dedicated)
     chungushost = enet_host_create(nullptr, 1, 2, 0, 0);
     if(!chungushost) return servererror(dedicated, "failed to create an ENet client");
     ENetAddress chunguspeer_address = {};
-    enet_address_set_host(&chunguspeer_address, "127.0.0.1");
-    chunguspeer_address.port = 30000;
+
+    const char* chunguspeer_address_env = getenv("CHUNGUS_PEER_ADDRESS");
+    if(!chunguspeer_address_env || !chunguspeer_address_env[0]) chunguspeer_address_env = "127.0.0.1";
+    const char* chunguspeer_port_env_char = getenv("CHUNGUS_PEER_PORT");
+    int chunguspeer_port_env = (chunguspeer_port_env_char && chunguspeer_port_env_char[0]) ? atoi(chunguspeer_port_env_char) : 30000;
+    enet_address_set_host(&chunguspeer_address, chunguspeer_address_env);
+    chunguspeer_address.port = chunguspeer_port_env;
     chunguspeer = enet_host_connect(chungushost, &chunguspeer_address, 2, 0);
     if(!chunguspeer) return servererror(dedicated, "failed to connect to ENet server");
 
