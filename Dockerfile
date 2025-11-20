@@ -47,6 +47,8 @@ RUN make
 ENV CHUNGUS=1
 ENV AUTH_URL=http://auth:8081/auth
 ENV QUERY_SERVICE_URL=http://localhost:8080/intermission
+ENV CHUNGUS_PEER_ADDRESS=host.docker.internal
+ENV CHUNGUS_PEER_PORT=30000
 ENV ADMIN_NAME=kappachungus
 ENV ADMIN_DOMAIN=kappachungus.auth
 ENV ADMIN_PUBLIC_KEY=+425ae6707d8c05dead7100fb2f73d44a9778081b6d77c54c
