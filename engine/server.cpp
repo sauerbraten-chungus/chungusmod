@@ -1161,6 +1161,7 @@ bool setuplistenserver(bool dedicated)
     if(!chunguspeer_address_env || !chunguspeer_address_env[0]) chunguspeer_address_env = "127.0.0.1";
     const char* chunguspeer_port_env_char = getenv("CHUNGUS_PEER_PORT");
     int chunguspeer_port_env = (chunguspeer_port_env_char && chunguspeer_port_env_char[0]) ? atoi(chunguspeer_port_env_char) : 30000;
+    printf("CHUNGUSPEERADDRESS: %s", chunguspeer_address_env);
     enet_address_set_host(&chunguspeer_address, chunguspeer_address_env);
     chunguspeer_address.port = chunguspeer_port_env;
     chunguspeer = enet_host_connect(chungushost, &chunguspeer_address, 2, 0);
