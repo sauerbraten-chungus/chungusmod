@@ -1165,7 +1165,12 @@ bool setuplistenserver(bool dedicated)
     enet_address_set_host(&chunguspeer_address, chunguspeer_address_env);
     chunguspeer_address.port = chunguspeer_port_env;
     chunguspeer = enet_host_connect(chungushost, &chunguspeer_address, 2, 0);
-    if(!chunguspeer) return servererror(dedicated, "failed to connect to ENet server");
+    if(!chunguspeer) {
+        printf("NOT CONNECTED TO CHUNGUSPEER BRUH FMCL\n");
+        return servererror(dedicated, "failed to connect to ENet server");
+    } else {
+        printf("CONNECTED TO CHUNGUSPEER YAY\n");
+    }
 
     return true;
 }
