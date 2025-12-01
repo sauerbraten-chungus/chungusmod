@@ -655,7 +655,8 @@ void notifychungusintermission()
     printf("notifying chungus peer");
     packetbuf p(MAXTRANS, ENET_PACKET_FLAG_RELIABLE);
     putint(p, CHUNGUS_INTERMISSION);
-    sendstring("kappa", p);
+    const char* server_container_id = getenv("HOSTNAME");
+    sendstring(server_container_id, p);
     enet_peer_send(chunguspeer, 0, p.finalize());
 }
 
