@@ -4,7 +4,7 @@
 --
 -- ]]
 
-
+local putf = require("std.putf")
 local http = require("socket.http")
 local ltn12 = require("ltn12")
 local json = require("dkjson")
@@ -141,6 +141,18 @@ spaghetti.addhook("clientdisconnect", function(info)
     end
     module.game.players[client_id] = nil
     print("HE CANT USE A STUN " .. client_id .. " HE DISCONNCETED")
+end)
+
+spaghetti.addhook("intermission", function(info)
+    if not engine.chunguspeer then
+        print("no chunguspeer braaaaah")
+        return
+    else
+        print("workr brah")
+
+        putf()
+    end
+    
 end)
 
 commands.add("code", function(info)

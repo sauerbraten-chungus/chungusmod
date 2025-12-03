@@ -660,6 +660,13 @@ void notifychungusintermission()
     enet_peer_send(chunguspeer, 0, p.finalize());
 }
 
+void statschungusintermission()
+{
+    if(!chunguspeer) return;
+    packetbuf p(MAXTRANS, ENET_PACKET_FLAG_RELIABLE);
+    enet_peer_send(chunguspeer, 0, p.finalize());
+}
+
 uint totalsecs = 0;
 
 void updatetime()
@@ -1752,6 +1759,8 @@ void bindengine(){
         .addFunction("delclient", delclient)
         .addFunction("process", process)
         .addVariable("serverhost", &serverhost)
+        .addVariable("chungushost", &chungushost)
+        .addVariable("chunguspeer", &chunguspeer)
         .addVariable("pongsock", &pongsock)
         .addVariable("lansock", &lansock)
         .addVariable("localclients", &localclients)

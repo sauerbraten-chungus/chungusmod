@@ -460,7 +460,8 @@ enum { DISC_NONE = 0, DISC_EOP, DISC_LOCAL, DISC_KICK, DISC_MSGERR, DISC_IPBAN, 
 enum
 {
     CHUNGUS_INTERMISSION = 0,
-    CHUNGUS_MAPCHANGE,
+    CHUNGUS_PLAYERINFO_ALL,
+    CHUNGUS_PLAYERINFO,
     CHUNGUS_PLAYERCOUNT,
     CHUNGUS_NUMMSG
 };
@@ -488,6 +489,7 @@ extern bool requestmaster(const char *req);
 extern bool requestmasterf(const char *fmt, ...) PRINTFARGS(1, 2);
 extern bool isdedicatedserver();
 extern void notifychungusintermission();
+extern void statschungusnintermission();
 
 // client
 extern void sendclientpacket(ENetPacket *packet, int chan);
