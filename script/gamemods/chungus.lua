@@ -4,7 +4,7 @@
 --
 -- ]]
 
-local putf = require("std.putf")
+local putf, iterators = require"std.putf", require"std.iterators"
 local http = require("socket.http")
 local ltn12 = require("ltn12")
 local json = require("dkjson")
@@ -143,17 +143,34 @@ spaghetti.addhook("clientdisconnect", function(info)
     print("HE CANT USE A STUN " .. client_id .. " HE DISCONNCETED")
 end)
 
-spaghetti.addhook("intermission", function(info)
+spaghetti.addhook("intermission", function(info)    
     if not engine.chunguspeer then
         print("no chunguspeer braaaaah")
         return
     else
-        print("workr brah")
-
-        putf()
+        print("workr brah")        
+        -- CHUNGUS_PLAYERINFO_ALL
+        -- packet { 1, NUMCLIENTS, CHUNGID_N, ... }
+        local p_all = {100, r = 1}
+        p_all = putf(p_all, engine.CHUNGUS_PLAYERINFO_ALL)
+        p_all = putf(p_all, server.numclients(-1, true, true))
+        for chungid, _ in pairs(module.chunguses) do
+            p_all = putf(p_all, chungid)
+        end
+        engine.enet_peer_send(engine.chunguspeer, 0, p_all:finalize())
+        -- CHUNGUS_PLAYERINFO
+        -- packet { 2, CHUNGID, STAT_N, ... }
+        for ci in iterators.clients() do
+            local chungid = module.game.players[ci.extra.uuid].chungid
+            local p = {100, r = 1}
+            p = putf(p, engine.CHUNGUS_PLAYERINFO, chungid, ci.name, ci.state.health)
+            print(ci.state.health)
+            engine.enet_peer_send(engine.chunguspeer, 0, p:finalize())
+        end
     end
-    
 end)
+
+
 
 commands.add("code", function(info)
     print(info.args)
@@ -166,6 +183,17 @@ commands.add("code", function(info)
             server.unspectate(info.ci)
         end
     end
+end)
+
+commands.add("devcode", function(info)
+    local client_id = info.ci.extra.uuid
+    local debug_chungid = 67
+    module.chunguses[debug_chungid] = {
+        verification_code = 123456,
+        uuid = client_id
+    }
+    module.game.players[client_id].chungid = debug_chungid
+    server.unspectate(info.ci)
 end)
 
 commands.add("devready", function(info)

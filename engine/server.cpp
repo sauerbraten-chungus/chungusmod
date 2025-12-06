@@ -643,7 +643,7 @@ void servicechungus()
         {
             case ENET_EVENT_TYPE_CONNECT: logoutf("external link up"); break;
             case ENET_EVENT_TYPE_RECEIVE: /* handle data */ enet_packet_destroy(event.packet); break;
-            case ENET_EVENT_TYPE_DISCONNECT: chunguspeer = nullptr; break;
+            case ENET_EVENT_TYPE_DISCONNECT: logoutf("chunguspeer disconnected"); chunguspeer = nullptr; break;
         }
     }
     enet_host_flush(chungushost);
@@ -656,7 +656,7 @@ void notifychungusintermission()
     packetbuf p(MAXTRANS, ENET_PACKET_FLAG_RELIABLE);
     putint(p, CHUNGUS_INTERMISSION);
     const char* server_container_id = getenv("HOSTNAME");
-    sendstring(server_container_id, p);
+    sendstring(server_container_id ? server_container_id : "no_orchestrator_container_id", p);
     enet_peer_send(chunguspeer, 0, p.finalize());
 }
 
@@ -1932,6 +1932,9 @@ void bindengine(){
     addEnum(ST_LOCAL);
     addEnum(ST_TCPIP);
     addEnum(MAXPINGDATA);
+    // chungus
+    addEnum(CHUNGUS_PLAYERINFO_ALL);
+    addEnum(CHUNGUS_PLAYERINFO);
 #define addPtr(n) lua_pushstring(L, #n); push(L, &n); lua_rawset(L, -3)
     addPtr(clients);
     addPtr(pongaddr);
