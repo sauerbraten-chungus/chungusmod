@@ -15,7 +15,8 @@ local hooks = {}
 local module = {
     config = {
         game_length = 1, -- minutes
-        auth_url = os.getenv("AUTH_URL") or "http://localhost:8081/auth"
+        auth_url = os.getenv("AUTH_URL") or "http://localhost:8081/auth",
+        hostname = os.getenv("HOSTNAME") or "unknown"
     },
     game = {
         is_competitive = false,
@@ -150,20 +151,19 @@ spaghetti.addhook("intermission", function(info)
     else
         print("workr brah")        
         -- CHUNGUS_PLAYERINFO_ALL
-        -- packet { 1, NUMCLIENTS, CHUNGID_N, ... }
+        -- packet { 1, HOSTNAME, NUMCLIENTS, CHUNGID_N, ... }
         local p_all = {100, r = 1}
-        p_all = putf(p_all, engine.CHUNGUS_PLAYERINFO_ALL)
-        p_all = putf(p_all, server.numclients(-1, true, true))
+        p_all = putf(p_all, engine.CHUNGUS_PLAYERINFO_ALL, module.config.hostname, server.numclients(-1, true, true))
         for chungid, _ in pairs(module.chunguses) do
             p_all = putf(p_all, chungid)
         end
         engine.enet_peer_send(engine.chunguspeer, 0, p_all:finalize())
         -- CHUNGUS_PLAYERINFO
-        -- packet { 2, CHUNGID, STAT_N, ... }
+        -- packet { 2, HOSTNAME, CHUNGID, STAT_N, ... }
         for ci in iterators.clients() do
             local chungid = module.game.players[ci.extra.uuid].chungid
             local p = {100, r = 1}
-            p = putf(p, engine.CHUNGUS_PLAYERINFO, chungid, ci.name, ci.state.health)
+            p = putf(p, engine.CHUNGUS_PLAYERINFO, module.config.hostname, chungid, ci.name, ci.state.health)
             print(ci.state.health)
             engine.enet_peer_send(engine.chunguspeer, 0, p:finalize())
         end
