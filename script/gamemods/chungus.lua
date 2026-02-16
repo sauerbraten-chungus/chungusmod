@@ -144,12 +144,12 @@ spaghetti.addhook("clientdisconnect", function(info)
     print("HE CANT USE A STUN " .. client_id .. " HE DISCONNCETED")
 end)
 
-spaghetti.addhook("intermission", function(info)    
+spaghetti.addhook("intermission", function(info) 
     if not engine.chunguspeer then
         print("no chunguspeer braaaaah")
         return
     else
-        print("workr brah")        
+        print("workr brah") 
         -- CHUNGUS_PLAYERINFO_ALL
         -- packet { 1, HOSTNAME, NUMCLIENTS, CHUNGID_N, ... }
         local p_all = {100, r = 1}
@@ -163,8 +163,11 @@ spaghetti.addhook("intermission", function(info)
         for ci in iterators.clients() do
             local chungid = module.game.players[ci.extra.uuid].chungid
             local p = {100, r = 1}
-            p = putf(p, engine.CHUNGUS_PLAYERINFO, module.config.hostname, chungid, ci.name, ci.state.health)
+            local accuracy = math.floor(ci.state.damage * 100 / math.max(ci.state.shotdamage, 1) * 100) / 100
+            local elo_temp = 10
+            p = putf(p, engine.CHUNGUS_PLAYERINFO, module.config.hostname, chungid, ci.name, ci.state.health, ci.state.frags, ci.state.deaths, accuracy, elo_temp)
             print(ci.state.health)
+            print(accuracy)
             engine.enet_peer_send(engine.chunguspeer, 0, p:finalize())
         end
     end
