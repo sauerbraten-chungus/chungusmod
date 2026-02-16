@@ -165,7 +165,7 @@ spaghetti.addhook("intermission", function(info)
             local p = {100, r = 1}
             local accuracy = math.floor(ci.state.damage * 100 / math.max(ci.state.shotdamage, 1) * 100) / 100
             local elo_temp = 10
-            p = putf(p, engine.CHUNGUS_PLAYERINFO, module.config.hostname, chungid, ci.name, ci.state.health, ci.state.frags, ci.state.deaths, accuracy, elo_temp)
+            p = putf(p, engine.CHUNGUS_PLAYERINFO, module.config.hostname, chungid, ci.name, ci.state.health, ci.state.frags, ci.state.deaths, {float = accuracy}, elo_temp)
             print(ci.state.health)
             print(accuracy)
             engine.enet_peer_send(engine.chunguspeer, 0, p:finalize())
