@@ -1,5 +1,7 @@
 PLATFORM_NATIVE:= $(shell ./enet/config.guess)
-SHELL:= /bin/bash
+BASH:= $(shell command -v bash 2>/dev/null || echo bash)
+SHELL:= $(BASH)
+CONFIG_SHELL:= $(BASH)
 
 OPTFLAGS:= -O3 -fomit-frame-pointer -ffast-math -fno-finite-math-only
 DEBUG:= -ggdb3
@@ -44,8 +46,10 @@ endif
 PKGCONFIG:= $(shell which $(PLATFORM)-pkg-config 2>/dev/null || echo pkg-config)
 OBJCOPY:= $(shell which $(PLATFORM)-objcopy 2>/dev/null || echo objcopy)
 STRIP:= $(shell which $(PLATFORM)-strip 2>/dev/null || echo strip)
+ifneq ($(PLATFORM),$(PLATFORM_NATIVE))
 CC:= $(shell which $(PLATFORM)-$(CC) 2>/dev/null || echo $(CC))
 CXX:= $(shell which $(PLATFORM)-$(CXX) 2>/dev/null || echo $(CXX))
+endif
 ifdef WIN
 WINDRES:= $(shell which $(PLATFORM)-windres 2>/dev/null || echo windres)
 endif
