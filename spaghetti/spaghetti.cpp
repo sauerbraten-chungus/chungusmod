@@ -1,7 +1,9 @@
 #include <csignal>
 #ifndef _WIN32
 #include <sys/resource.h>
+#ifdef __linux__
 #include <sys/prctl.h>
+#endif
 #endif
 
 #include "spaghetti.h"
@@ -103,7 +105,9 @@ void init(){
         limit.rlim_cur=limit.rlim_max;
         if(setrlimit(RLIMIT_CORE, &limit)) conoutf(CON_WARN, "failed to set ulimit -c.");
     }
+#ifdef __linux__
     prctl(PR_SET_DUMPABLE, 1);
+#endif
 
     auto noop = [](int){};
     signal(SIGHUP,  noop);

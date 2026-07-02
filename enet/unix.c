@@ -293,7 +293,11 @@ enet_socket_listen (ENetSocket socket, int backlog)
 ENetSocket
 enet_socket_create (ENetSocketType type)
 {
+#ifdef SOCK_CLOEXEC
     return socket (PF_INET, (type == ENET_SOCKET_TYPE_DATAGRAM ? SOCK_DGRAM : SOCK_STREAM) | SOCK_CLOEXEC, 0);
+#else
+    return socket (PF_INET, type == ENET_SOCKET_TYPE_DATAGRAM ? SOCK_DGRAM : SOCK_STREAM, 0);
+#endif
 }
 
 int

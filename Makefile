@@ -1,4 +1,9 @@
-PLATFORM_NATIVE:= $(shell ./enet/config.guess)
+# enet's bundled config.guess predates Apple Silicon and reports plain "arm-apple-darwinNN.N.N"
+# for arm64 Macs (no 32-bit ARM macOS ever existed). Left as-is, that string trips two bugs below:
+# it's missing "64" (so the CPU-width check picks -m32) and it contains "arm" (so the Darwin
+# branch assumes iOS and adds -mios-version-min instead of -mmacosx-version-min). Normalizing to
+# "aarch64-apple-darwinNN.N.N" here fixes both without touching the branch logic.
+PLATFORM_NATIVE:= $(shell ./enet/config.guess | sed 's/^arm-apple-darwin/aarch64-apple-darwin/')
 BASH:= $(shell command -v bash 2>/dev/null || echo bash)
 SHELL:= $(BASH)
 CONFIG_SHELL:= $(BASH)
@@ -131,7 +136,7 @@ endif
 
 endif
 
-enet/.libs/libenet.a:
+enet/.libs/libenet.a: | enet/Makefile
 	$(MAKE) -C enet/ all
 
 ifneq (, $(findstring clang,$(CC)))
