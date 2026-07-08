@@ -24,8 +24,8 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /app
 
-# Clone your repository
-RUN git clone https://github.com/sauerbraten-chungus/chungusmod.git /app
+# Build from the local checkout (was: git clone from GitHub, which shipped stale upstream code)
+COPY . /app
 
 # Install Lua modules
 RUN luarocks install dkjson
@@ -45,7 +45,7 @@ RUN make
 
 # Set the default command
 ENV CHUNGUS=1
-ENV AUTH_URL=http://auth:8081/auth
+ENV AUTH_URL=http://host.docker.internal:8081/auth
 ENV QUERY_SERVICE_URL=http://localhost:8080/intermission
 ENV CHUNGUS_PEER_ADDRESS=host.docker.internal
 ENV CHUNGUS_PEER_PORT=30000

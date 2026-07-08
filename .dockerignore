@@ -1,0 +1,8 @@
+.git
+var/
+sauer_server
+*.o
+enet/.libs/
+enet/Makefile
+enet/config.log
+enet/config.status

@@ -1,4 +1,4 @@
-# CLAUDE.md — chungusmod
+# AGENTS.md — chungusmod
 
 ## Overview
 
@@ -109,15 +109,19 @@ Game server sends ENet packets to chungusway (via `CHUNGUS_PEER`):
 | `CHUNGUS_PEER_ADDRESS` | Chungusway address | `host.docker.internal` |
 | `CHUNGUS_PEER_PORT` | Chungusway ENet port | `30000` |
 | `GAME_SERVER_PORT` | Game server port | `28785` |
-| `QUERY_SERVICE_URL` | SQC intermission endpoint | `http://server:8080/intermission` |
-| `AUTH_URL` | Auth service endpoint | `http://auth:8081/auth` |
+| `QUERY_SERVICE_URL` | SQC intermission endpoint | `http://localhost:8080/intermission` (SQC shares the container's network namespace) |
+| `AUTH_URL` | Auth service endpoint | `http://host.docker.internal:8081/auth` in the image; `http://localhost:8081/auth` in code |
 | `ADMIN_NAME`, `ADMIN_DOMAIN`, `ADMIN_PUBLIC_KEY` | Admin auth config | — |
 
 ## Docker
 
+The image builds the **local checkout** (`COPY . /app`, see `.dockerignore`) — it used to `git clone` from GitHub, which silently shipped stale upstream code instead of your working tree. Rebuild with `just images` from `chungusroot/` (tags `chungusmod:latest`, which chungustrator spawns per match).
+
 ```dockerfile
 FROM ubuntu:22.04
 # Lua 5.2, luarocks (dkjson, luasocket, struct, uuid, mmdblua)
+COPY . /app
+RUN make
 ENV CHUNGUS=1
 CMD ["./sauer_server"]
 ```

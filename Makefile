@@ -17,10 +17,13 @@ ifeq (, $(PLATFORM))
 CPUINFO:= -march=native
 PLATFORM:= $(PLATFORM_NATIVE)
 ifeq (, $(findstring armv7,$(PLATFORM)))
+# aarch64 gcc has no -m32/-m64 (x86/ppc-only flags); 64-bit is implied by the target
+ifeq (, $(findstring aarch64,$(PLATFORM)))
 ifneq (, $(findstring 64,$(PLATFORM)))
 override CPUINFO+= -m64 
 else
 override CPUINFO+= -m32 
+endif
 endif
 endif
 endif
