@@ -88,9 +88,9 @@ Priority-based naming (lower number = loaded first):
 4. Player mapped to chungid for stats tracking
 
 ### Stats Reporting (Intermission)
-Game server sends ENet packets to chungusway (via `CHUNGUS_PEER`):
-- `CHUNGUS_PLAYERINFO_ALL` — container ID + list of connected chungids
-- `CHUNGUS_PLAYERINFO` — per-player: chungid, name, frags, deaths, accuracy, ELO
+At intermission, `chungus.lua` builds one roster — connected AND verified players (`chungid ~= ""`) — and derives the whole report from it, so chungusway's expected set always matches the arriving stats. Unverified spectators are skipped (no identity to credit). If the roster is empty, no report is sent. Packets to chungusway (via `CHUNGUS_PEER`):
+- `CHUNGUS_PLAYERINFO_ALL` — container ID + roster size + roster chungids
+- `CHUNGUS_PLAYERINFO` — per roster entry: chungid, name, frags, deaths, accuracy, ELO
 - `CHUNGUS_INTERMISSION` — lifecycle signal with container ID
 
 ### ENet Protocol Flags (`shared/iengine.h`)

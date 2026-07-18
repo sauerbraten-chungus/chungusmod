@@ -144,32 +144,43 @@ spaghetti.addhook("clientdisconnect", function(info)
     print("HE CANT USE A STUN " .. client_id .. " HE DISCONNCETED")
 end)
 
-spaghetti.addhook("intermission", function(info) 
+spaghetti.addhook("intermission", function(info)
     if not engine.chunguspeer then
         print("no chunguspeer braaaaah")
         return
-    else
-        print("workr brah") 
-        -- CHUNGUS_PLAYERINFO_ALL
-        -- packet { 1, HOSTNAME, NUMCLIENTS, CHUNGID_N, ... }
-        local p_all = {100, r = 1}
-        p_all = putf(p_all, engine.CHUNGUS_PLAYERINFO_ALL, module.config.hostname, server.numclients(-1, true, true))
-        for chungid, _ in pairs(module.chunguses) do
-            p_all = putf(p_all, chungid)
+    end
+    -- THE roster: connected AND verified players. Count, expected-chungid
+    -- list, and stats packets all derive from this one table so chungusway's
+    -- expected set and the arriving stats can never disagree. Unverified
+    -- spectators (chungid == "") have no identity to credit and are skipped.
+    local roster = {}
+    for ci in iterators.clients() do
+        local chungid = module.game.players[ci.extra.uuid].chungid
+        if chungid ~= "" then
+            roster[#roster + 1] = { ci = ci, chungid = chungid }
         end
-        engine.enet_peer_send(engine.chunguspeer, 0, p_all:finalize())
-        -- CHUNGUS_PLAYERINFO
-        -- packet { 2, HOSTNAME, CHUNGID, STAT_N, ... }
-        for ci in iterators.clients() do
-            local chungid = module.game.players[ci.extra.uuid].chungid
-            local p = {100, r = 1}
-            local accuracy = math.floor(ci.state.damage * 100 / math.max(ci.state.shotdamage, 1) * 100) / 100
-            local elo_temp = 10
-            p = putf(p, engine.CHUNGUS_PLAYERINFO, module.config.hostname, chungid, ci.name, ci.state.health, ci.state.frags, ci.state.deaths, {float = accuracy}, elo_temp)
-            print(ci.state.health)
-            print(accuracy)
-            engine.enet_peer_send(engine.chunguspeer, 0, p:finalize())
-        end
+    end
+    if #roster == 0 then
+        print("no verified players at intermission, skipping stats report")
+        return
+    end
+    -- CHUNGUS_PLAYERINFO_ALL
+    -- packet { 1, HOSTNAME, NUMCLIENTS, CHUNGID_N, ... }
+    local p_all = {100, r = 1}
+    p_all = putf(p_all, engine.CHUNGUS_PLAYERINFO_ALL, module.config.hostname, #roster)
+    for _, entry in ipairs(roster) do
+        p_all = putf(p_all, entry.chungid)
+    end
+    engine.enet_peer_send(engine.chunguspeer, 0, p_all:finalize())
+    -- CHUNGUS_PLAYERINFO
+    -- packet { 2, HOSTNAME, CHUNGID, STAT_N, ... }
+    for _, entry in ipairs(roster) do
+        local ci = entry.ci
+        local accuracy = math.floor(ci.state.damage * 100 / math.max(ci.state.shotdamage, 1) * 100) / 100
+        local elo_temp = 10
+        local p = {100, r = 1}
+        p = putf(p, engine.CHUNGUS_PLAYERINFO, module.config.hostname, entry.chungid, ci.name, ci.state.health, ci.state.frags, ci.state.deaths, {float = accuracy}, elo_temp)
+        engine.enet_peer_send(engine.chunguspeer, 0, p:finalize())
     end
 end)
 
