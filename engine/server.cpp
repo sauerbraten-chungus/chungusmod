@@ -633,6 +633,12 @@ void updatemasterserver()
     lastupdatemaster = totalmillis ? totalmillis : 1;
 }
 
+static const char *chunguscontainerid()
+{
+    const char *container_id = getenv("HOSTNAME");
+    return container_id && container_id[0] ? container_id : "unknown";
+}
+
 void servicechungus()
 {
     if(!chungushost) return;
@@ -641,9 +647,9 @@ void servicechungus()
     {
         switch(event.type)
         {
-            case ENET_EVENT_TYPE_CONNECT: logoutf("external link up"); break;
+            case ENET_EVENT_TYPE_CONNECT: logoutf("[chungusmod][INFO] event=chungusway_connected container_id=%s", chunguscontainerid()); break;
             case ENET_EVENT_TYPE_RECEIVE: /* handle data */ enet_packet_destroy(event.packet); break;
-            case ENET_EVENT_TYPE_DISCONNECT: logoutf("chunguspeer disconnected"); chunguspeer = nullptr; break;
+            case ENET_EVENT_TYPE_DISCONNECT: logoutf("[chungusmod][WARN] event=chungusway_disconnected container_id=%s", chunguscontainerid()); chunguspeer = nullptr; break;
         }
     }
     enet_host_flush(chungushost);
@@ -652,7 +658,7 @@ void servicechungus()
 void notifychungusintermission()
 {
     if(!chunguspeer) return;
-    printf("notifying chungus peer");
+    logoutf("[chungusmod][INFO] event=intermission_notification_sent container_id=%s", chunguscontainerid());
     packetbuf p(MAXTRANS, ENET_PACKET_FLAG_RELIABLE);
     putint(p, CHUNGUS_INTERMISSION);
     const char* server_container_id = getenv("HOSTNAME");
@@ -1169,15 +1175,13 @@ bool setuplistenserver(bool dedicated)
     if(!chunguspeer_address_env || !chunguspeer_address_env[0]) chunguspeer_address_env = "127.0.0.1";
     const char* chunguspeer_port_env_char = getenv("CHUNGUS_PEER_PORT");
     int chunguspeer_port_env = (chunguspeer_port_env_char && chunguspeer_port_env_char[0]) ? atoi(chunguspeer_port_env_char) : 30000;
-    printf("CHUNGUSPEERADDRESS: %s", chunguspeer_address_env);
+    logoutf("[chungusmod][INFO] event=chungusway_connecting container_id=%s peer_host=%s peer_port=%d", chunguscontainerid(), chunguspeer_address_env, chunguspeer_port_env);
     enet_address_set_host(&chunguspeer_address, chunguspeer_address_env);
     chunguspeer_address.port = chunguspeer_port_env;
     chunguspeer = enet_host_connect(chungushost, &chunguspeer_address, 2, 0);
     if(!chunguspeer) {
-        printf("NOT CONNECTED TO CHUNGUSPEER BRUH FMCL\n");
+        logoutf("[chungusmod][ERROR] event=chungusway_connection_failed container_id=%s peer_host=%s peer_port=%d", chunguscontainerid(), chunguspeer_address_env, chunguspeer_port_env);
         return servererror(dedicated, "failed to connect to ENet server");
-    } else {
-        printf("CONNECTED TO CHUNGUSPEER YAY\n");
     }
 
     return true;

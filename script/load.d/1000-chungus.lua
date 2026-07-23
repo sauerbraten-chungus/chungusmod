@@ -5,7 +5,8 @@
 ]] --
 
 if not os.getenv("CHUNGUS") then return end
-engine.writelog("Applying chungus confifguration")
+engine.writelog(("[chungusmod][INFO] event=configuration_applied container_id=%s"):format(
+    os.getenv("HOSTNAME") or "unknown"))
 server.mastermode = server.MM_LOCKED
 -- engine.sendpacket(-1, 1, putf({ r = true }, server.N_MASTERMODE, server.mastermode):finalize(), -1)
 

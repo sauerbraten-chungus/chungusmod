@@ -28,6 +28,20 @@ local module = {
     jwt = nil
 }
 
+local log_levels = { DEBUG = 10, INFO = 20, WARN = 30, ERROR = 40 }
+local configured_log_level = (os.getenv("LOG_LEVEL") or "INFO"):upper()
+local minimum_log_level = log_levels[configured_log_level] or log_levels.INFO
+
+local function log(level, event, fields)
+    if log_levels[level] < minimum_log_level then return end
+    local message = ("[chungusmod][%s] event=%s container_id=%s"):format(
+        level, event, module.config.hostname)
+    if fields then message = message .. " " .. fields end
+    engine.writelog(message)
+end
+
+log("INFO", "module_loaded")
+
 local function fetchJWT()
     local response_body = {}
     local res, code, headers, status = http.request {
@@ -44,14 +58,14 @@ local function fetchJWT()
 
         if success and response_data.token then
             local jwt = response_data.token
-            print("JWT Obtained " .. jwt:sub(1, 20) .. "...")
+            log("INFO", "auth_token_obtained")
             return jwt
         else
-            print("Failed to parse JWT response: " .. response_text)
+            log("ERROR", "auth_token_parse_failed")
             return nil
         end
     else
-        print("Failed to get JWT: " .. table.concat(response_body))
+        log("ERROR", "auth_token_request_failed", "status=" .. tostring(code))
         return nil
     end
 end
@@ -76,14 +90,7 @@ local function startmatch()
 end
 
 local function readycheck()
-    local player_count = server.numclients(-1, true, true)
-    if player_count == module.game.ready_count then
-        print("READY CHECK = TRUE")
-        return true
-    else
-        print("READY CHECK = FALSE")
-        return false
-    end
+    return server.numclients(-1, true, true) == module.game.ready_count
 end
 
 local function get_max_bots()
@@ -99,7 +106,7 @@ end
 
 spaghetti.addhook("clientconnect", function(info)
     local client_id = info.ci.extra.uuid
-    print(client_id .. " has connected")
+    log("INFO", "player_connected", "client_id=" .. client_id)
     module.game.players[client_id] = {
         chungid = ""
     }
@@ -113,15 +120,17 @@ spaghetti.addhook("clientconnect", function(info)
 end)
 
 spaghetti.addhook("chungustrator", function(info)
-    print("CHUNGUSTRATOR DEBUG")
+    local player_count = 0
     for pair in string.gmatch(info.text, "([^,]+)") do
         local chungid, verification_code = pair:match("([^:]+):(.+)")
         module.chunguses[chungid] = {
             verification_code = verification_code,
             uuid = ""
         }
-        print(chungid, verification_code)
+        player_count = player_count + 1
+        log("DEBUG", "verification_code_registered", "chungid=" .. chungid)
     end
+    log("INFO", "verification_codes_received", "players=" .. player_count)
 end)
 
 spaghetti.addhook("clientdisconnect", function(info)
@@ -141,12 +150,13 @@ spaghetti.addhook("clientdisconnect", function(info)
         end
     end
     module.game.players[client_id] = nil
-    print("HE CANT USE A STUN " .. client_id .. " HE DISCONNCETED")
+    log("INFO", "player_disconnected",
+        ("client_id=%s chungid=%s"):format(client_id, client_chungid ~= "" and client_chungid or "unverified"))
 end)
 
 spaghetti.addhook("intermission", function(info)
     if not engine.chunguspeer then
-        print("no chunguspeer braaaaah")
+        log("ERROR", "stats_report_skipped", "reason=missing_chungusway_peer")
         return
     end
     -- THE roster: connected AND verified players. Count, expected-chungid
@@ -161,11 +171,12 @@ spaghetti.addhook("intermission", function(info)
         end
     end
     if #roster == 0 then
-        print("no verified players at intermission, skipping stats report")
+        log("INFO", "stats_report_skipped", "reason=no_verified_players")
         return
     end
     -- CHUNGUS_PLAYERINFO_ALL
     -- packet { 1, HOSTNAME, NUMCLIENTS, CHUNGID_N, ... }
+    log("INFO", "stats_report_started", "players=" .. #roster)
     local p_all = {100, r = 1}
     p_all = putf(p_all, engine.CHUNGUS_PLAYERINFO_ALL, module.config.hostname, #roster)
     for _, entry in ipairs(roster) do
@@ -180,6 +191,9 @@ spaghetti.addhook("intermission", function(info)
         local elo_temp = 10
         local p = {100, r = 1}
         p = putf(p, engine.CHUNGUS_PLAYERINFO, module.config.hostname, entry.chungid, ci.name, ci.state.health, ci.state.frags, ci.state.deaths, {float = accuracy}, elo_temp)
+        log("DEBUG", "player_stats_sent",
+            ("chungid=%s frags=%d deaths=%d accuracy=%.2f"):format(
+                entry.chungid, ci.state.frags, ci.state.deaths, accuracy))
         engine.enet_peer_send(engine.chunguspeer, 0, p:finalize())
     end
 end)
@@ -187,16 +201,24 @@ end)
 
 
 commands.add("code", function(info)
-    print(info.args)
     local client_id = info.ci.extra.uuid
-    if not is_spectator(info.ci) or module.game.is_competitive or module.game.players[client_id].chungid ~= "" then return end
-    for chungid, _ in pairs(module.chunguses) do
-        if info.args == module.chunguses[chungid].verification_code and module.chunguses[chungid].uuid == "" then
-            module.chunguses[chungid].uuid = client_id
+    if not is_spectator(info.ci) or module.game.is_competitive or module.game.players[client_id].chungid ~= "" then
+        log("WARN", "verification_rejected", "client_id=" .. client_id .. " reason=invalid_player_state")
+        return
+    end
+
+    for chungid, assignment in pairs(module.chunguses) do
+        if info.args == assignment.verification_code and assignment.uuid == "" then
+            assignment.uuid = client_id
             module.game.players[client_id].chungid = chungid
             server.unspectate(info.ci)
+            log("INFO", "player_verified",
+                ("client_id=%s chungid=%s"):format(client_id, chungid))
+            return
         end
     end
+
+    log("WARN", "verification_rejected", "client_id=" .. client_id .. " reason=invalid_or_used_code")
 end)
 
 commands.add("devcode", function(info)
@@ -208,6 +230,8 @@ commands.add("devcode", function(info)
     }
     module.game.players[client_id].chungid = debug_chungid
     server.unspectate(info.ci)
+    log("WARN", "player_dev_verified",
+        ("client_id=%s chungid=%s"):format(client_id, tostring(debug_chungid)))
 end)
 
 commands.add("devready", function(info)
@@ -261,13 +285,13 @@ function module.on(config)
     module.game.is_competitive = true
     hooks = {}
 
-    print("hello bro")
+    log("INFO", "competitive_mode_enabled")
     module.jwt = fetchJWT()
     intermission.setJWT(module.jwt)
 
     -- hooks
     hooks.changemap = spaghetti.addhook("changemap", function(info)
-        print("hello bro 2")
+        log("INFO", "map_started", "game_length_minutes=" .. module.config.game_length)
         settime.set(module.config.game_length * 60 * 1000)
         local num_bots = get_max_bots()
         -- for _ = 1, num_bots do
@@ -275,16 +299,13 @@ function module.on(config)
         -- end
     end)
 
-    spaghetti.addhook("servmodesetup", function(info)
-        print("HELLO KEK")
-    end)
 
     -- log hook
     spaghetti.addhook(server.N_ADDBOT, function(info)
         -- if info.skip then return end
         -- info.skip = true
         -- if info.ci.privilege < server.PRIV_ADMIN then playermsg("Only admins can add zombies", info.ci) return end
-        print("adding bot")
+        log("INFO", "bot_added")
         server.aiman.addai(1, -1)
     end)
 end

@@ -93,6 +93,9 @@ At intermission, `chungus.lua` builds one roster — connected AND verified play
 - `CHUNGUS_PLAYERINFO` — per roster entry: chungid, name, frags, deaths, accuracy, ELO
 - `CHUNGUS_INTERMISSION` — lifecycle signal with container ID
 
+### Logging
+Chungus platform events go through `engine.writelog` and use `[chungusmod][LEVEL] event=<name> key=value...`; the engine supplies the timestamp. `LOG_LEVEL` defaults to `INFO`, with `DEBUG` enabling per-player/code-registration detail. Lifecycle and stats events carry `container_id`, and player events add `chungid` when verification has established it. JWTs, verification codes, and auth response bodies are never logged.
+
 ### ENet Protocol Flags (`shared/iengine.h`)
 ```
 0 = CHUNGUS_INTERMISSION
