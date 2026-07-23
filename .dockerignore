@@ -1,8 +1,14 @@
 .git
 var/
 sauer_server
-*.o
+**/*.o
+**/*.a
+**/*.lo
+**/*.la
 enet/.libs/
+enet/.deps/
 enet/Makefile
 enet/config.log
 enet/config.status
+enet/libtool
+enet/libenet.pc
